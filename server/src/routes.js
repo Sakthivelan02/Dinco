@@ -125,13 +125,12 @@ r.post('/orders', auth, wrap(async (req, res) => {
   req.user.cart = [];
   await req.user.save();
 
-  // ✉️ Send Order Confirmation Email using Nodemailer
-  try {
-    if (shipping.email || req.user.email) {
-      await sendOrderEmail(shipping.email || req.user.email, order);
-    }
-  } catch (emailErr) {
-    console.error('Email sending failed:', emailErr);
+  // ✉️ Send Order Confirmation Email in Background (Non-blocking)
+  const recipientEmail = shipping.email || req.user.email;
+  if (recipientEmail) {
+    sendOrderEmail(recipientEmail, order).catch((emailErr) => {
+      console.error('Background email sending failed:', emailErr.message);
+    });
   }
 
   res.status(201).json(order);
