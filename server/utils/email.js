@@ -1,18 +1,20 @@
 import nodemailer from 'nodemailer';
 
-// 1. Transporter setup
+// 1. Transporter setup with explicit timeouts to prevent long hangs on Render
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  connectionTimeout: 10000, // 10 seconds timeout limit
+  socketTimeout: 10000,
 });
 
 // 2. Email sending function with full product details
 export const sendOrderEmail = async (customerEmail, orderDetails) => {
   try {
-    // Generate HTML rows for each ordered product (Fixed multiplication issue)
+    // Generate HTML rows for each ordered product
     const itemsListHTML = orderDetails.items.map(item => `
       <tr>
         <td style="padding: 10px; border-bottom: 1px solid #ddd; color: #333;">${item.name}</td>
@@ -71,6 +73,6 @@ export const sendOrderEmail = async (customerEmail, orderDetails) => {
     await transporter.sendMail(mailOptions);
     console.log('Order confirmation email with full product details sent successfully!');
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('Error sending email:', error.message);
   }
 };
