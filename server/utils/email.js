@@ -9,16 +9,16 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// 2. Email anuppura function with full product details
+// 2. Email sending function with full product details
 export const sendOrderEmail = async (customerEmail, orderDetails) => {
   try {
-    // Generate HTML rows for each ordered product
+    // Generate HTML rows for each ordered product (Fixed multiplication issue)
     const itemsListHTML = orderDetails.items.map(item => `
       <tr>
         <td style="padding: 10px; border-bottom: 1px solid #ddd; color: #333;">${item.name}</td>
         <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: center; color: #333;">${item.qty}</td>
-        <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right; color: #333;">₹${item.price.toFixed(2)}</td>
-        <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right; color: #333; font-weight: bold;">₹${(item.price * item.qty).toFixed(2)}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right; color: #333;">₹${Number(item.price).toFixed(2)}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right; color: #333; font-weight: bold;">₹${(Number(item.price) * Number(item.qty)).toFixed(2)}</td>
       </tr>
     `).join('');
 
@@ -51,7 +51,7 @@ export const sendOrderEmail = async (customerEmail, orderDetails) => {
             </tbody>
           </table>
 
-          <h3 style="text-align: right; color: #111; margin-top: 15px;">Grand Total: ₹${orderDetails.total.toFixed(2)}</h3>
+          <h3 style="text-align: right; color: #111; margin-top: 15px;">Grand Total: ₹${Number(orderDetails.total).toFixed(2)}</h3>
 
           <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;" />
 
