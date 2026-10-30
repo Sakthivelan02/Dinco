@@ -11,6 +11,9 @@ dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 const app = express();
 
+// 👉 REQUIRED for Render / Cloud proxies so rateLimit works correctly
+app.set('trust proxy', 1);
+
 app.use(helmet());
 app.use(cors({ origin: process.env.CLIENT_URL?.split(',') || true }));
 app.use(express.json({ limit: '100kb' }));
