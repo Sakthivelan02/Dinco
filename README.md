@@ -1,41 +1,56 @@
-# Dinco — MERN E-Commerce
+# 🛒 Dinco - Full-Stack MERN E-Commerce Application
 
-A full-stack store built with **MongoDB, Express, React (Vite) and Node**.
+Dinco is a modern, feature-rich full-stack e-commerce web application built with the MERN stack. It features robust user authentication, a dynamic product catalog with advanced search & filtering, an India-specific shipping checkout with state/district dropdowns, a ₹1 UPI Scan & Pay simulation, and automated HTML email notifications using Nodemailer.
 
-## Features
-- Product list with search, category filter, price cap, sorting and pagination
-- Product detail, server-side cart (add / update / remove), checkout and order confirmation
-- JWT authentication, account page (update details, order history)
-- Admin dashboard: add/delete products, update order status
-- Security: bcrypt hashing, helmet, CORS allow-list, auth rate limit, prices and totals computed on the server
-- Payment is a **demo** (card number is never sent or stored). Add Stripe in `POST /api/orders` if desired.
+---
 
-## Local setup
-```bash
-# 1. API
-cd server && cp .env.example .env     # fill MONGO_URI and JWT_SECRET
-npm install && npm run seed && npm run dev
+## 🚀 Tech Stack
 
-# 2. Client (new terminal)
-cd client && npm install && npm run dev   # http://localhost:5173
-```
-Seed accounts: `admin@shop.test / admin123`, `user@shop.test / user123`.
+### **Frontend:**
+* **React.js** (with Vite)
+* **React Router v6** (for client-side routing)
+* **CSS3 / Modern Styling**
 
-## Environment variables
-| File | Variable | Purpose |
-|---|---|---|
-| server/.env | `MONGO_URI` | MongoDB Atlas connection string |
-| server/.env | `JWT_SECRET` | Long random string |
-| server/.env | `CLIENT_URL` | Frontend origin(s), comma-separated (CORS) |
-| client/.env | `VITE_API_URL` | Deployed API URL ending in `/api` |
+### **Backend:**
+* **Node.js** & **Express.js**
+* **MongoDB & Mongoose** (Database & ODM)
+* **JWT (JSON Web Tokens)** & **Bcrypt.js** (Authentication & Security)
+* **Nodemailer** (Automated Email Notifications)
 
-## Deployment
-1. **MongoDB Atlas**: create a free cluster, allow network access, copy the URI.
-2. **API on Render**: root `server`, build `npm install`, start `npm start`; set the three env vars (`CLIENT_URL` = your frontend URL).
-3. **Client on Vercel/Netlify**: root `client`, build `npm run build`, output `dist`; set `VITE_API_URL`.
-4. Run the seed once (`npm run seed` locally with the Atlas URI) to create sample data.
+---
 
-## API summary
-`/api/auth/{register,login,me}` · `/api/products` (GET public, write = admin) · `/api/cart` (auth) · `/api/orders` (auth; list all = admin)
+## ✨ Key Features
 
-Lint/format: `npm run lint` in each folder, `npx prettier --write .`
+1. **User Authentication & Role Management:** Secure registration, login, and JWT-based session handling with Admin and Customer roles.
+2. **Product Catalog & Search:** Browse products by categories, search by keywords, filter by price range, and sort dynamically.
+3. **Cart & Inventory Management:** Add, update quantities, or remove items with live stock validation.
+4. **India-Specific Checkout:** Seamless shipping address form integrated with Indian states and districts.
+5. **UPI Scan & Pay Simulation:** Interactive ₹1 QR code payment option during checkout.
+6. **Automated Order Emails:** Instant order confirmation emails sent to customers via Nodemailer featuring an itemized product breakdown table, grand total, and shipping address.
+7. **Admin Dashboard:** Exclusive controls for admins to add, update, or delete products and manage customer orders.
+
+---
+
+## 📁 Project Structure
+
+```text
+mern-ecommerce/
+│
+├── client/                 # Frontend React application (Vite)
+│   ├── src/
+│   │   ├── App.jsx         # Main router & layout setup
+│   │   ├── main.jsx        # Entry point with BrowserRouter
+│   │   ├── context.jsx     # Global state management
+│   │   └── pages.jsx       # Views (Home, Products, Cart, Checkout, Admin, Auth)
+│   └── package.json
+│
+├── server/                 # Backend Node.js & Express application
+│   ├── src/
+│   │   ├── index.js        # Server entry point & DB connection
+│   │   ├── routes.js       # API endpoints (Auth, Products, Cart, Orders)
+│   │   └── middleware.js   # JWT Auth & Admin guard middlewares
+│   ├── utils/
+│   │   └── email.js        # Nodemailer configuration & HTML templates
+│   └── package.json
+│
+└── README.md
