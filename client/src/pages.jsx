@@ -154,6 +154,7 @@ export function Checkout() {
   });
   const [order, setOrder] = useState(null);
   const [err, setErr] = useState('');
+  const [loading, setLoading] = useState(false);
   const total = cart.reduce((s, i) => s + i.product.price * i.qty, 0);
   
   const on = (k) => (e) => {
@@ -168,6 +169,8 @@ export function Checkout() {
 
   const submit = async (e) => {
     e.preventDefault();
+    setErr('');
+    setLoading(true);
     try {
       const { card, state, ...shippingData } = f; 
       const shipping = {
@@ -177,7 +180,11 @@ export function Checkout() {
       const res = await api('/orders', { method: 'POST', body: { shipping } }); 
       setOrder(res); 
       setCart([]);
-    } catch (x) { setErr(x.message); }
+    } catch (x) { 
+      setErr(x.message || 'Failed to place order. Please try again.'); 
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (order) return (
@@ -201,14 +208,12 @@ export function Checkout() {
       <h1>Checkout</h1>
       <label>Full Name<input required value={f.fullName} onChange={on('fullName')} /></label>
       
-      {/* Email Input Field */}
       <label>Email Address (for order updates)
         <input type="email" required value={f.email} onChange={on('email')} placeholder="e.g. sakthi@gmail.com" />
       </label>
 
       <label>Street Address<input required value={f.address} onChange={on('address')} placeholder="Door No, Street Name" /></label>
       
-      {/* State Dropdown */}
       <label>State / Region
         <select required value={f.state} onChange={on('state')}>
           {Object.keys(indianStatesAndDistricts).map((st) => (
@@ -217,7 +222,6 @@ export function Checkout() {
         </select>
       </label>
 
-      {/* District / City Dropdown based on State */}
       <label>District / City
         <select required value={f.city} onChange={on('city')}>
           {availableDistricts.map((dist) => (
@@ -242,8 +246,10 @@ export function Checkout() {
       <h3>Order summary</h3>
       {cart.map((i) => <p key={i.product._id}>{i.qty} × {i.product.name} <strong>{money(i.qty * i.product.price)}</strong></p>)}
       <h2>Total: {money(total)}</h2>
-      {err && <p className="error">{err}</p>}
-      <button className="btn">Place order</button>
+      {err && <p className="error" style={{ color: '#fb7185', background: 'rgba(251, 113, 133, 0.1)', padding: '10px', borderRadius: '8px' }}>⚠️ {err}</p>}
+      <button className="btn" disabled={loading}>
+        {loading ? 'Placing Order...' : 'Place order'}
+      </button>
     </form>
   );
 }
@@ -383,10 +389,9 @@ export function Admin() {
           </label>
         ))}
 
-        {/* Categories Dropdown in Admin Panel */}
         <label>
           category
-          <select required value={f.category} onChange={(e) => setF({ ...f, category: f.category = e.target.value })}>
+          <select required value={f.category} onChange={(e) => setF({ ...f, category: e.target.value })}>
             <option value="">Select category</option>
             {cats?.map((c) => (
               <option key={c} value={c}>{c}</option>
