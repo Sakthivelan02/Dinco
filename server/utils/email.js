@@ -1,22 +1,27 @@
 export const sendOrderEmail = async (customerEmail, orderDetails) => {
   try {
-    const itemsListHTML = orderDetails.items.map(item => `
+    if (!customerEmail) {
+      console.log('[Email Skip] No recipient email provided.');
+      return;
+    }
+
+    const itemsListHTML = (orderDetails.items || []).map(item => `
       <tr>
-        <td style="padding: 10px; border-bottom: 1px solid #ddd; color: #333;">${item.name}</td>
-        <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: center; color: #333;">${item.qty}</td>
-        <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right; color: #333;">₹${Number(item.price).toFixed(2)}</td>
-        <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right; color: #333; font-weight: bold;">₹${(Number(item.price) * Number(item.qty)).toFixed(2)}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #ddd; color: #333;">${item.name || 'Product'}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: center; color: #333;">${item.qty || 1}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right; color: #333;">₹${Number(item.price || 0).toFixed(2)}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right; color: #333; font-weight: bold;">₹${(Number(item.price || 0) * Number(item.qty || 1)).toFixed(2)}</td>
       </tr>
     `).join('');
 
     const emailPayload = {
       sender: { name: "Dinco Store", email: "sakthi09112002@gmail.com" },
-      to: [{ email: customerEmail, name: orderDetails.shipping.fullName }],
+      to: [{ email: customerEmail, name: orderDetails.shipping?.fullName || 'Valued Customer' }],
       subject: '🎉 Dinco - Order Placed Successfully!',
       htmlContent: `
         <div style="font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; border-radius: 10px; max-width: 600px; margin: auto;">
           <h2 style="color: #6366f1; text-align: center;">Thank you for shopping with Dinco!</h2>
-          <p>Hi <b>${orderDetails.shipping.fullName}</b>,</p>
+          <p>Hi <b>${orderDetails.shipping?.fullName || 'Customer'}</b>,</p>
           <p>Your order has been placed successfully and is currently being processed.</p>
           
           <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;" />
@@ -38,15 +43,15 @@ export const sendOrderEmail = async (customerEmail, orderDetails) => {
             </tbody>
           </table>
 
-          <h3 style="text-align: right; color: #111; margin-top: 15px;">Grand Total: ₹${Number(orderDetails.total).toFixed(2)}</h3>
+          <h3 style="text-align: right; color: #111; margin-top: 15px;">Grand Total: ₹${Number(orderDetails.total || 0).toFixed(2)}</h3>
 
           <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;" />
 
           <h3 style="color: #333; margin-bottom: 5px;">Shipping Address:</h3>
           <p style="margin: 0; color: #555; line-height: 1.5;">
-            ${orderDetails.shipping.address}<br/>
-            ${orderDetails.shipping.city} - ${orderDetails.shipping.postalCode}<br/>
-            ${orderDetails.shipping.country}
+            ${orderDetails.shipping?.address || ''}<br/>
+            ${orderDetails.shipping?.city || ''} - ${orderDetails.shipping?.postalCode || ''}<br/>
+            ${orderDetails.shipping?.country || ''}
           </p>
 
           <br/>
@@ -55,7 +60,7 @@ export const sendOrderEmail = async (customerEmail, orderDetails) => {
       `
     };
 
-    // Add a 5-second timeout controller so it never hangs the server
+    // Timeout protection using AbortController (5 seconds limit)
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
@@ -74,12 +79,13 @@ export const sendOrderEmail = async (customerEmail, orderDetails) => {
 
     if (!response.ok) {
       const errRes = await response.text();
-      console.error('Brevo API rejected email:', errRes);
+      console.warn('Brevo API warning (non-fatal):', errRes);
       return;
     }
 
     console.log('Order confirmation email sent successfully via Brevo API!');
   } catch (error) {
-    console.error('Error sending email via Brevo:', error.message);
+    // 🛡️ Completely swallow the error so it never crashes the order route or triggers connection close
+    console.warn('Email dispatch warning (safely caught):', error.message);
   }
 };
