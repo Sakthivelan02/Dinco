@@ -1,5 +1,3 @@
-import axios from 'axios'; // Oru vela axios illana native fetch use pannikalam
-
 export const sendOrderEmail = async (customerEmail, orderDetails) => {
   try {
     const itemsListHTML = orderDetails.items.map(item => `
@@ -57,7 +55,7 @@ export const sendOrderEmail = async (customerEmail, orderDetails) => {
       `
     };
 
-    // Send via Brevo HTTP API (Bypasses Render SMTP blocking completely)
+    // Using Node.js built-in global fetch (No axios package required!)
     const response = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
       headers: {
