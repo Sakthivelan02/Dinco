@@ -10,7 +10,7 @@ export const sendOrderEmail = async (customerEmail, orderDetails) => {
     `).join('');
 
     const emailPayload = {
-      sender: { name: "Dinco Store", email: "no-reply@dinco.com" },
+      sender: { name: "Dinco Store", email: "sakthi09112002@gmail.com" },
       to: [{ email: customerEmail, name: orderDetails.shipping.fullName }],
       subject: '🎉 Dinco - Order Placed Successfully!',
       htmlContent: `
@@ -55,7 +55,7 @@ export const sendOrderEmail = async (customerEmail, orderDetails) => {
       `
     };
 
-    // Using Node.js built-in global fetch (No axios package required!)
+    // Using Node.js built-in global fetch
     const response = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
       headers: {
