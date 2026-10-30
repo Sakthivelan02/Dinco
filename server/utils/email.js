@@ -55,7 +55,10 @@ export const sendOrderEmail = async (customerEmail, orderDetails) => {
       `
     };
 
-    // Using Node.js built-in global fetch
+    // Add a 5-second timeout controller so it never hangs the server
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
     const response = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
       headers: {
@@ -63,12 +66,16 @@ export const sendOrderEmail = async (customerEmail, orderDetails) => {
         'api-key': process.env.BREVO_API_KEY,
         'content-type': 'application/json'
       },
-      body: JSON.stringify(emailPayload)
+      body: JSON.stringify(emailPayload),
+      signal: controller.signal
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const errRes = await response.text();
-      throw new Error(`Brevo API Error: ${errRes}`);
+      console.error('Brevo API rejected email:', errRes);
+      return;
     }
 
     console.log('Order confirmation email sent successfully via Brevo API!');
