@@ -1,20 +1,7 @@
-import nodemailer from 'nodemailer';
+import axios from 'axios'; // Oru vela axios illana native fetch use pannikalam
 
-// 1. Transporter setup with explicit timeouts to prevent long hangs on Render
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  connectionTimeout: 10000, // 10 seconds timeout limit
-  socketTimeout: 10000,
-});
-
-// 2. Email sending function with full product details
 export const sendOrderEmail = async (customerEmail, orderDetails) => {
   try {
-    // Generate HTML rows for each ordered product
     const itemsListHTML = orderDetails.items.map(item => `
       <tr>
         <td style="padding: 10px; border-bottom: 1px solid #ddd; color: #333;">${item.name}</td>
@@ -24,11 +11,11 @@ export const sendOrderEmail = async (customerEmail, orderDetails) => {
       </tr>
     `).join('');
 
-    const mailOptions = {
-      from: '"Dinco Store" <no-reply@dinco.com>',
-      to: customerEmail,
+    const emailPayload = {
+      sender: { name: "Dinco Store", email: "no-reply@dinco.com" },
+      to: [{ email: customerEmail, name: orderDetails.shipping.fullName }],
       subject: '🎉 Dinco - Order Placed Successfully!',
-      html: `
+      htmlContent: `
         <div style="font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; border-radius: 10px; max-width: 600px; margin: auto;">
           <h2 style="color: #6366f1; text-align: center;">Thank you for shopping with Dinco!</h2>
           <p>Hi <b>${orderDetails.shipping.fullName}</b>,</p>
@@ -67,12 +54,27 @@ export const sendOrderEmail = async (customerEmail, orderDetails) => {
           <br/>
           <p style="color: #666; text-align: center; font-size: 0.85rem;">We will notify you once your order is shipped.<br/><b>- Team Dinco Store</b></p>
         </div>
-      `,
+      `
     };
 
-    await transporter.sendMail(mailOptions);
-    console.log('Order confirmation email with full product details sent successfully!');
+    // Send via Brevo HTTP API (Bypasses Render SMTP blocking completely)
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify(emailPayload)
+    });
+
+    if (!response.ok) {
+      const errRes = await response.text();
+      throw new Error(`Brevo API Error: ${errRes}`);
+    }
+
+    console.log('Order confirmation email sent successfully via Brevo API!');
   } catch (error) {
-    console.error('Error sending email:', error.message);
+    console.error('Error sending email via Brevo:', error.message);
   }
 };
