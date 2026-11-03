@@ -1,7 +1,9 @@
 import { Routes, Route, Link, NavLink, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useApp } from './context.jsx';
-import { Home, Products, ProductDetail, Cart, Checkout, Auth, Account, Admin } from './pages.jsx';
+import { Home, Products, ProductDetail, Cart, Checkout, Account, Admin } from './pages.jsx';
+import Login from './components/Login.jsx';
+import Register from './components/Register.jsx';
 
 function Guard({ children, adminOnly }) {
   const { user, ready } = useApp();
@@ -40,8 +42,8 @@ export default function App() {
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Guard><Checkout /></Guard>} />
-          <Route path="/login" element={<Auth mode="login" />} />
-          <Route path="/register" element={<Auth mode="register" />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/account" element={<Guard><Account /></Guard>} />
           <Route path="/admin" element={<Guard adminOnly><Admin /></Guard>} />
           <Route path="*" element={<p className="note">Page not found. <Link to="/">Go home</Link></p>} />
