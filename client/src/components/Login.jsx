@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useApp } from '../context.jsx'; // Context-ai import panrom
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { login } = useApp(); // Context-la irukkura login function
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -14,87 +16,53 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // Safe URL with trailing slash cleanup
-      const rawUrl = import.meta.env.VITE_API_URL || 'https://dinco-backend.onrender.com';
-      const API_URL = rawUrl.replace(/\/$/, '');
-
-      const response = await fetch(`${API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
-      }
-
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      // Project-oda context login function-ai use panrom (It handles API & state automatically)
+      await login('/auth/login', { email, password });
       navigate('/');
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Login failed');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
-      <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-lg">
-        <h2 className="text-2xl font-bold text-center text-indigo-600 mb-6">Login to Dinco</h2>
+    <form className="form" onSubmit={handleLogin}>
+      <h1>Log in</h1>
+      
+      {error && <p className="error" style={{ color: '#fb7185', background: 'rgba(251, 113, 133, 0.1)', padding: '10px', borderRadius: '8px' }}>⚠️ {error}</p>}
 
-        {error && (
-          <div className="mb-4 p-3 text-sm text-red-700 bg-red-100 rounded-lg">
-            {error}
-          </div>
-        )}
+      <label>Email
+        <input 
+          type="email" 
+          required 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
+          placeholder="yourname@gmail.com" 
+        />
+      </label>
 
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="yourname@gmail.com"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
+      <label>Password
+        <input 
+          type="password" 
+          required 
+          value={password} 
+          onChange={(e) => setPassword(e.target.value)} 
+          placeholder="••••••••" 
+        />
+      </label>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
+      <button className="btn" disabled={loading}>
+        {loading ? 'Logging in...' : 'Log in'}
+      </button>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition duration-200 disabled:opacity-50"
-          >
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
-
-        <p className="mt-4 text-sm text-center text-gray-600">
-          Don't have an account?{' '}
-          <Link to="/register" className="text-indigo-600 font-medium hover:underline">
-            Sign up here
-          </Link>
-        </p>
-      </div>
-    </div>
+      <p style={{ marginTop: '15px', textAlign: 'center' }}>
+        Don't have an account?{' '}
+        <Link to="/register" style={{ color: '#22d3ee', fontWeight: 'bold' }}>
+          Sign up here
+        </Link>
+      </p>
+    </form>
   );
 };
 
