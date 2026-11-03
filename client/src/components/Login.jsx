@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useApp } from '../context.jsx'; // Context-ai import panrom
+import { useApp } from '../context.jsx';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useApp(); // Context-la irukkura login function
+  const { login } = useApp();
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -16,7 +16,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // Project-oda context login function-ai use panrom (It handles API & state automatically)
+      // Context login function moolama API call & state update panrom
       await login('/auth/login', { email, password });
       navigate('/');
     } catch (err) {
@@ -28,27 +28,29 @@ const Login = () => {
 
   return (
     <form className="form" onSubmit={handleLogin}>
-      <h1>Log in</h1>
-      
+      <h1>Log in to Dinco</h1>
+
       {error && <p className="error" style={{ color: '#fb7185', background: 'rgba(251, 113, 133, 0.1)', padding: '10px', borderRadius: '8px' }}>⚠️ {error}</p>}
 
-      <label>Email
-        <input 
-          type="email" 
-          required 
-          value={email} 
-          onChange={(e) => setEmail(e.target.value)} 
-          placeholder="yourname@gmail.com" 
+      <label>
+        Email Address
+        <input
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="yourname@gmail.com"
         />
       </label>
 
-      <label>Password
-        <input 
-          type="password" 
-          required 
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
-          placeholder="••••••••" 
+      <label>
+        Password
+        <input
+          type="password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="••••••••"
         />
       </label>
 

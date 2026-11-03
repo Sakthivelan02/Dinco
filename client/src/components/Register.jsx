@@ -6,7 +6,7 @@ const Register = () => {
   const [f, setF] = useState({ name: '', email: '', password: '' });
   const [error, setErr] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useApp(); // context login function can handle register endpoint too!
+  const { login } = useApp(); // context login/auth handler
   const navigate = useNavigate();
 
   const submit = async (e) => {
@@ -19,6 +19,7 @@ const Register = () => {
     setLoading(true);
 
     try {
+      // Register endpoint-ku request anuppi state-ai update panrom
       await login('/auth/register', f);
       navigate('/');
     } catch (x) {
@@ -36,16 +37,37 @@ const Register = () => {
 
       {error && <p className="error" style={{ color: '#fb7185', background: 'rgba(251, 113, 133, 0.1)', padding: '10px', borderRadius: '8px' }}>⚠️ {error}</p>}
 
-      <label>Name
-        <input required value={f.name} onChange={on('name')} placeholder="Sakthivel Arumugam" />
+      <label>
+        Full Name
+        <input 
+          required 
+          value={f.name} 
+          onChange={on('name')} 
+          placeholder="Sakthivel Arumugam" 
+        />
       </label>
 
-      <label>Email
-        <input type="email" required value={f.email} onChange={on('email')} placeholder="yourname@gmail.com" />
+      <label>
+        Email Address
+        <input 
+          type="email" 
+          required 
+          value={f.email} 
+          onChange={on('email')} 
+          placeholder="yourname@gmail.com" 
+        />
       </label>
 
-      <label>Password
-        <input type="password" required minLength={6} value={f.password} onChange={on('password')} placeholder="••••••••" />
+      <label>
+        Password (Min 6 chars)
+        <input 
+          type="password" 
+          required 
+          minLength={6} 
+          value={f.password} 
+          onChange={on('password')} 
+          placeholder="••••••••" 
+        />
       </label>
 
       <button className="btn" disabled={loading}>
